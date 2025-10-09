@@ -1,7 +1,7 @@
 #Database Dictionaries 
 product_variants [id, sku, size, color, prie_cents, active]
 inventory_movements [id, sku, qty_change]
-customers [id, member_id name, tier, points]
+customers [id, member_id, name, tier, points]
 orders [id, order_code, member_id, status, total_cents]
 order_items [id, order_id, sku, qty]
 
