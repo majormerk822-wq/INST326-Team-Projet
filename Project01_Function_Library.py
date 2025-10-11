@@ -7,7 +7,7 @@ order_items [id, order_id, sku, qty]
 
 
 #INVENTORY FUNCTIONS 
-check_inventory(sku) -> int
+check_inventory(sku) -> int 
 def check_inventory(sku):
     """
     Returns the current stock level of the given SKU.
