@@ -33,14 +33,28 @@ def add_to_inventory(sku, qty):
     return {"sku": sku, "new_qty": new_qty}
     
 remove_from_inventory(sku, qty) -> dict
+#removes stock and returns a dictionary
+def remove_from_inventory(sku, qty):
+     if qty <= 0:
+        print("Quantity must be positive")
+        return None
+    
+    if not any(p["sku"] == sku for p in product_variants):
+        print("SKU not found")
+        return None
+    
+    current_stock = calculate_stock_level(sku)
+    if current_stock < qty:
+        print(f"Insufficient stock. Available: {current_stock}, Requested: {qty}")
+        return None
+    
+    inventory_movements.append({"sku": sku, "qty_change": -qty})
+    new_qty = calculate_stock_level(sku)
+    print(f"Removed {qty} units from {sku}. New stock: {new_qty}")
+    return {"sku": sku, "new_qty": new_qty}
 
 calculate_stock_level(sku) -> int
-
-is_product_in_stock(sku, qty) -> bool
-inventory_movements = [
-    {"sku": "SHIRT-RED-M", "qty_change": 10},
-    {"sku": "SHIRT-BLUE-L", "qty_change": 5},
-]
+#Add up all stock movements for one product
 
 def calculate_stock_level(sku):
     """Add up all stock movements for one product."""
@@ -50,6 +64,11 @@ def calculate_stock_level(sku):
             total = total + move["qty_change"]
     return total
 
+is_product_in_stock(sku, qty) -> bool
+inventory_movements = [
+    {"sku": "SHIRT-RED-M", "qty_change": 10},
+    {"sku": "SHIRT-BLUE-L", "qty_change": 5},
+]
 
 def is_product_in_stock(sku, qty):
     """
@@ -116,6 +135,48 @@ def generate_order_code(order_id):
 
     return order_code
 finalize_sale(cart, member_id=None) -> order
+def finalize_sale(cart, member_id=None):
+    #Complete a sale: create order, add order items, update inventory, apply loyalty.
+    #Returns the order dictionary.
+    if not cart:
+        print("Cart is empty.")
+        return None
+
+    total_cents = calculate_cart_total(cart)
+    
+    discount_cents = 0
+    if member_id and validate_member_id(member_id):
+        discount_cents = compute_loyalty_discount(member_id, total_cents)
+        total_cents -= discount_cents
+    
+    new_order_id = len(orders) + 1
+    order_code = generate_order_code(new_order_id)
+    
+    # Create order
+    order = {
+        "id": new_order_id,
+        "order_code": order_code,
+        "member_id": member_id,
+        "status": "PAID",
+        "total_cents": total_cents
+    }
+    orders.append(order)
+    
+    for item in cart:
+        order_item = {
+            "id": len(order_items) + 1,
+            "order_id": new_order_id,
+            "sku": item["sku"],
+            "qty": item["qty"]
+        }
+        order_items.append(order_item)
+        remove_from_inventory(item["sku"], item["qty"])
+    
+    if member_id and validate_member_id(member_id):
+        award_loyalty_points(member_id, total_cents)
+    
+    print(f"Order {order_code} finalized. Total: ${total_cents / 100:.2f}")
+    return order
 
 
 #CUSTOMER LOYALTY FUNCTIONS 
@@ -180,6 +241,34 @@ def award_loyalty_points(member_id, total_cents):
 
 
 validate_return_eligibility(order_id, return_items) -> bool
+    def validate_return_eligibility(order_id, return_items):
+    #Check if a return is allowed for a given order and items.
+    #Returns True if return is eligible, False otherwise.
+
+    order = next((o for o in orders if o["id"] == order_id), None)
+    if order is None:
+        print(f"Order {order_id} not found.")
+        return False
+
+    if order["status"] != "PAID":
+        print(f"Order {order_id} cannot be returned (status: {order['status']}).")
+        return False
+    
+    for return_item in return_items:
+        sku = return_item["sku"]
+        qty = return_item["qty"]
+        
+        order_item = next((oi for oi in order_items if oi["order_id"] == order_id and oi["sku"] == sku), None)
+        
+        if order_item is None:
+            print(f"SKU {sku} not found in order {order_id}.")
+            return False
+        
+        if order_item["qty"] < qty:
+            print(f"Insufficient quantity of {sku} in order. Available: {order_item['qty']}, Requested: {qty}")
+            return False
+    
+    return True
 
 calculate_refund_total(order_id, return_items) -> refund_cents
 product_variants = {
@@ -217,5 +306,53 @@ def calculate_refund_total(order_id, return_items):
 
     return total_refund
 process_return(order_id, return_items) -> return_order
+def process_return(order_id, return_items):
+    """
+    Create a return order, restock returned shirts, and record the refund.
+    Returns the return order dictionary.
+    """
+    # Validate return eligibility
+    if not validate_return_eligibility(order_id, return_items):
+        print(f"Return for order {order_id} is not eligible.")
+        return None
+    
+    # Calculate refund total
+    refund_cents = calculate_refund_total(order_id, return_items)
+    
+    # Generate new return order ID
+    new_return_order_id = len(orders) + 1
+    return_order_code = generate_order_code(new_return_order_id)
+    
+    # Get member info from original order
+    original_order = next((o for o in orders if o["id"] == order_id), None)
+    member_id = original_order["member_id"] if original_order else None
+    
+
+    return_order = {
+        "id": new_return_order_id,
+        "order_code": return_order_code,
+        "member_id": member_id,
+        "status": "RETURN",
+        "total_cents": refund_cents
+    }
+    orders.append(return_order)
+    
+    for return_item in return_items:
+        sku = return_item["sku"]
+        qty = return_item["qty"]
+        
+        order_item = {
+            "id": len(order_items) + 1,
+            "order_id": new_return_order_id,
+            "sku": sku,
+            "qty": qty
+        }
+        order_items.append(order_item)
+        
+        inventory_movements.append({"sku": sku, "qty_change": qty})
+    
+    print(f"Return order {return_order_code} created. Refund: ${refund_cents / 100:.2f}")
+    
+    return return_order
 
 
