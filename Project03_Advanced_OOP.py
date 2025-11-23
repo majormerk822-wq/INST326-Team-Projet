@@ -64,3 +64,54 @@ cart.add_item(shirt, 2)
 cart.add_item(mug, 1)
 
 cart.print_receipt()
+
+from abc import ABC, abstractmethod
+
+class RewardStrategy(ABC):
+    @abstractmethod
+    def calculate(self, order):
+        pass
+
+class BronzeReward(RewardStrategy):
+    def calculate(self, order):
+        return order.total_cents // 100  
+
+class GoldReward(BronzeReward):
+    def calculate(self, order):
+        base = super().calculate(order)   
+        return base * 2                   
+
+class PlatinumReward(RewardStrategy):
+    def calculate(self, order):
+        return (order.total_cents // 100) * 3
+
+class LoyaltyProgram:
+    def __init__(self, strategy: RewardStrategy):
+        self.strategy = strategy
+        self.customers = {}
+        self.orders = {}
+
+    def add_customer(self, customer):
+        self.customers[customer.member_id] = customer
+
+    def add_order(self, order):
+        self.orders[order.order_code] = order
+
+    def apply_points(self, order_code):
+        order = self.orders[order_code]
+        customer = self.customers[order.member_id]
+
+        points = self.strategy.calculate(order) 
+        customer.add_points(points)
+        return points
+
+c = Customer(1, "M001", "Alice", "Gold", 0)
+o = Order(1, "O100", "M001", "Delivered", 5000)  
+
+program = LoyaltyProgram(GoldReward())
+program.add_customer(c)
+program.add_order(o)
+
+earned = program.apply_points("O100")
+print(f"Points earned: {earned}")
+print(c)
