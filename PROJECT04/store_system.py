@@ -474,9 +474,8 @@ class Order:
 #PROJECT 03 
 from abc import ABC, abstractmethod
 
-# -------------------------------
+
 # Abstract Product & Subclasses
-# -------------------------------
 
 class AbstractProduct(ABC):
     def __init__(self, sku, price_cents):
@@ -485,7 +484,6 @@ class AbstractProduct(ABC):
 
     @abstractmethod
     def get_description(self):
-        """Must be implemented by subclasses"""
         pass
 
     def get_price_dollars(self):
@@ -511,14 +509,11 @@ class Mug(AbstractProduct):
     def get_description(self):
         return f"Mug - {self._capacity_oz} oz"
 
-# -------------------------------
-# Cart Class
-# -------------------------------
 
+# Cart Class
 class Cart:
     def __init__(self):
-        self.items = []  # list of tuples (product, qty)
-
+        self.items = []  
     def add_item(self, product, qty):
         self.items.append((product, qty))
 
@@ -530,10 +525,7 @@ class Cart:
             print(f"{prod.get_description()} x {qty} - ${prod.get_price_dollars() * qty:.2f}")
         print(f"Total: ${self.total_price_cents() / 100:.2f}")
 
-# -------------------------------
 # Reward Strategy Pattern
-# -------------------------------
-
 class RewardStrategy(ABC):
     @abstractmethod
     def calculate(self, order):
@@ -552,10 +544,8 @@ class PlatinumReward(RewardStrategy):
     def calculate(self, order):
         return (order.total_cents // 100) * 3
 
-# -------------------------------
-# Customer and Order Classes
-# -------------------------------
 
+# Customer and Order Classes
 class Customer:
     def __init__(self, id, member_id, name, tier, points=0):
         self._id = id
@@ -590,9 +580,7 @@ class Order:
     @property
     def total_cents(self): return self._total_cents
 
-# -------------------------------
 # Loyalty Program Class
-# -------------------------------
 
 class LoyaltyProgram:
     def __init__(self, strategy: RewardStrategy):
