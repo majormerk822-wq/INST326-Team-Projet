@@ -40,7 +40,7 @@ class TestLoyaltyProgram(unittest.TestCase):
         program.add_customer(c)
         program.add_order(o)
         earned = program.apply_points("O100")
-        self.assertEqual(earned, 100)  # 5000 // 100 * 2
+        self.assertEqual(earned, 100)  
         self.assertEqual(c.points, 100)
 
 
