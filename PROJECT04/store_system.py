@@ -1,8 +1,6 @@
 # check_inventory(sku) -> int
 def check_inventory(sku):
-    """
-    Returns the current stock level of the given SKU.
-    """
+    
     total = 0
     for movement in inventory_movements:
         if movement["sku"] == sku:
