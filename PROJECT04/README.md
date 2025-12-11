@@ -136,7 +136,7 @@ Inventory limits & returns
 
 Inactive product blocking
 
-Known Limitations
+**Known Limitations
 Uses global in-memory state (not ideal for large apps)
 
 No GUI or CLI
@@ -145,7 +145,7 @@ JSON files instead of a real database
 
 Some integration tests are TODOs
 
-Future Enhancements
+**Future Enhancements
 Migrate to a structured database
 
 Add CLI or web UI (Flask / FastAPI)
