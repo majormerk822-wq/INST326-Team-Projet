@@ -48,7 +48,6 @@ def load_all():
     order_items = load_data(order_items_file, [])
     return inventory_movements, customers, orders, order_items
 
-# Export summary report
 def export_summary(customers, orders, inventory_movements, filename="summary_report.json"):
     try:
         summary = {
