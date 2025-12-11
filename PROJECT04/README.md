@@ -5,7 +5,7 @@ Supports shirts, mugs, SKU-based stock tracking, tiered rewards, and JSON data p
 
 ---
 
-## 🧠 Overview
+## Overview
 
 Retail stores often struggle with stock accuracy, loyalty tracking, and consistent sales/returns handling.  
 This project solves these problems by providing:
@@ -18,7 +18,7 @@ This project solves these problems by providing:
 
 ---
 
-## 👥 Team Members
+## Team Members
 
 | Name | Role |
 |------|------|
@@ -28,7 +28,7 @@ This project solves these problems by providing:
 
 ---
 
-## ⚙️ Installation
+## Installation
 
 python -m venv venv
 source venv/bin/activate      # macOS/Linux
@@ -44,10 +44,10 @@ clothing-store-system/
 ├── system_tests.py
 ├── test_integration.py
 └── data/
-🚀 Basic Usage
+Basic Usage
 Create products & cart
 python
-Copy code
+
 from store_system import Shirt, Mug, Cart
 
 shirt = Shirt("SHIRT-RED-M", 2500, "M", "Red")
@@ -80,7 +80,7 @@ scan_item(cart, "SHIRT-RED-M")
 order = finalize_sale(cart, member_id="M001")
 
 process_return(order["id"], [{"sku": "SHIRT-RED-M", "qty": 1}])
-🏗️ Architecture Summary
+Architecture Summary
 OOP Components
 
 AbstractProduct, Shirt, Mug
@@ -111,14 +111,14 @@ Persistence
 
 JSON save/load via save_all(), load_all()
 
-🧪 Running Tests
+Running Tests
 bash
-Copy code
+
 python -m unittest discover -v
 Or individually:
 
 bash
-Copy code
+
 python testone.py
 python system_tests.py
 python test_integration.py
@@ -136,7 +136,7 @@ Inventory limits & returns
 
 Inactive product blocking
 
-⚠️ Known Limitations
+Known Limitations
 Uses global in-memory state (not ideal for large apps)
 
 No GUI or CLI
@@ -145,7 +145,7 @@ JSON files instead of a real database
 
 Some integration tests are TODOs
 
-📌 Future Enhancements
+Future Enhancements
 Migrate to a structured database
 
 Add CLI or web UI (Flask / FastAPI)
