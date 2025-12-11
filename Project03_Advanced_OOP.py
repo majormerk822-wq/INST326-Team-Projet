@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 
-# -------------------------------
 # Abstract Product & Subclasses
-# -------------------------------
 
 class AbstractProduct(ABC):
     def __init__(self, sku, price_cents):
