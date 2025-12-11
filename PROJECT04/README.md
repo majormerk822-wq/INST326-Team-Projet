@@ -35,7 +35,7 @@ source venv/bin/activate      # macOS/Linux
 venv\Scripts\activate         # Windows
 No external packages required.
 
-📁 Project Structure
+Project Structure
 kotlin
 
 clothing-store-system/
