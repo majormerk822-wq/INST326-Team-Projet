@@ -155,3 +155,10 @@ Expand promotions/coupons
 Improve error handling
 
 More complete persistence and integration tests
+
+---
+
+## Video Presentation
+
+Video LinkL: 
+https://drive.google.com/file/d/16IdjzS4A-Md8V_MmP-tkkw7TCyBa8JZP/view?usp=sharing
